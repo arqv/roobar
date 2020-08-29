@@ -46,6 +46,20 @@ impl ComponentList {
     }
     pub fn update_all_sync(&mut self) -> Result<(), Error> {
         self.iter()
+            .map(|c| {
+                let tmp = c.write();
+                if tmp.is_err() {
+                    Err(Error {
+                        kind: ErrorKind::Guard,
+                        payload: Some("Failed to acquire write guard.")
+                    })
+                } else {
+                    Ok(())
+                }
+            })
+            .collect::<Result<(), Error>>()?;
+
+        self.iter()
             .map(|c| c.write().unwrap().update())
             .collect()
     }
