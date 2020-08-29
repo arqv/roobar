@@ -14,7 +14,8 @@ use formatter::DzenFormatter;
 #[derive(Debug, Copy, Clone)]
 pub enum ErrorKind {
     Unknown,
-    Guard
+    GuardError,
+    FileError
 }
 
 #[derive(Debug, Copy, Clone)]

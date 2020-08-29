@@ -1,3 +1,7 @@
+pub trait ColorCode {
+    fn repr(&self) -> String;
+}
+
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct RGB(pub u8, pub u8, pub u8);
 impl RGB {

@@ -1,6 +1,10 @@
+use std::{
+    slice::Iter,
+    sync::{Arc, RwLock}
+};
+
 use crate::color::Color;
 use crate::{Error, ErrorKind};
-use std::{slice::Iter, sync::{Arc, RwLock}};
 
 pub trait Component {
     fn get_color(&self) -> Color;
@@ -25,42 +29,50 @@ impl ComponentList {
         color: Color,
     ) -> Result<String, Error> {
         let separator = fmt.colorize(String::from(separator), color);
+        let mut guards = vec![];
         self.iter()
             .map(|c| { 
                 let tmp = c.read();
                 if tmp.is_err() {
                     Err(Error {
-                        kind: ErrorKind::Guard,
-                        payload: Some("Failed to acquire read guard.")
+                        kind: ErrorKind::GuardError,
+                        payload: Some("failed to acquire read guard")
                     })
                 } else {
+                    if let Ok(tmp) = tmp {
+                        guards.push(tmp);
+                    }
                     Ok(())
                 }
             })
             .collect::<Result<(), Error>>()?;
 
-        Ok(self.iter()
-            .map(|c| c.read().unwrap().show().unwrap_or_else(|| String::from("n/a")))
+        Ok(guards.iter()
+            .map(|c| c.show().unwrap_or_else(|| String::from("n/a")))
             .collect::<Vec<String>>()
             .join(&separator))
     }
     pub fn update_all_sync(&mut self) -> Result<(), Error> {
+        let mut guards = vec![];
         self.iter()
             .map(|c| {
                 let tmp = c.write();
                 if tmp.is_err() {
                     Err(Error {
-                        kind: ErrorKind::Guard,
-                        payload: Some("Failed to acquire write guard.")
+                        kind: ErrorKind::GuardError,
+                        payload: Some("failed to acquire write guard")
                     })
                 } else {
+                    if let Ok(tmp) = tmp {
+                        guards.push(tmp);
+                    }
                     Ok(())
                 }
             })
             .collect::<Result<(), Error>>()?;
 
-        self.iter()
-            .map(|c| c.write().unwrap().update())
+        guards.iter_mut()
+            .map(|c| c.update())
             .collect()
     }
     pub fn iter(&self) -> Iter<Arc<RwLock<dyn Component>>> {
