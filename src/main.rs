@@ -14,6 +14,7 @@ use formatter::DzenFormatter;
 #[derive(Debug, Copy, Clone)]
 pub enum ErrorKind {
     Unknown,
+    Guard
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -46,7 +47,7 @@ pub fn main() -> Result<(), Error> {
 
     println![
         "{}",
-        components.show_all_sync(" | ", &FMT, Color::new(None, RGB(127, 127, 127)))
+        components.show_all_sync(" | ", &FMT, Color::new(None, RGB(127, 127, 127)))?
     ];
 
     Ok(())

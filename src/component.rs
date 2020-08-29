@@ -1,5 +1,5 @@
 use crate::color::Color;
-use crate::Error;
+use crate::{Error, ErrorKind};
 use std::{slice::Iter, sync::{Arc, RwLock}};
 
 pub trait Component {
@@ -23,12 +23,26 @@ impl ComponentList {
         separator: &'static str,
         fmt: &impl crate::formatter::Formatter,
         color: Color,
-    ) -> String {
+    ) -> Result<String, Error> {
         let separator = fmt.colorize(String::from(separator), color);
         self.iter()
+            .map(|c| { 
+                let tmp = c.read();
+                if tmp.is_err() {
+                    Err(Error {
+                        kind: ErrorKind::Guard,
+                        payload: Some("Failed to acquire read guard.")
+                    })
+                } else {
+                    Ok(())
+                }
+            })
+            .collect::<Result<(), Error>>()?;
+
+        Ok(self.iter()
             .map(|c| c.read().unwrap().show().unwrap_or_else(|| String::from("n/a")))
             .collect::<Vec<String>>()
-            .join(&separator)
+            .join(&separator))
     }
     pub fn update_all_sync(&mut self) -> Result<(), Error> {
         self.iter()
