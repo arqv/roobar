@@ -1,4 +1,4 @@
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct RGB(pub u8, pub u8, pub u8);
 impl RGB {
     pub fn as_hex(&self) -> String {
