@@ -69,6 +69,7 @@ impl ComponentList {
                     Ok(())
                 }
             })
+
             .collect::<Result<(), Error>>()?;
 
         guards.iter_mut()

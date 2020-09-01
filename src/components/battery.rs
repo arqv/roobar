@@ -65,7 +65,7 @@ impl Component for Battery {
             });
             self._res = error;
             return error;
-        }
+        }                                                                                                                                                                                                                                                                                           
         let bat = bat.unwrap();
 
         let ac = std::fs::read_to_string(self.acpath.join("online"));
