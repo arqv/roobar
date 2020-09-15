@@ -1,15 +1,12 @@
-extern crate nom;
-
 mod color;
 mod component;
 mod components;
 mod formatter;
-
+use color::{Color, RGB};
+use component::ComponentList;
+use formatter::Dzen;
 use std::path::Path;
 use std::sync::{Arc, RwLock};
-
-use color::{Color, RGB};
-use formatter::DzenFormatter;
 
 #[derive(Debug, Copy, Clone)]
 pub enum ErrorKind {
@@ -23,7 +20,7 @@ pub struct Error {
     payload: Option<&'static str>,
 }
 
-const FMT: DzenFormatter = DzenFormatter {};
+const FMT: Dzen = Dzen {};
 
 macro_rules! add_component {
     ($vec:expr, $component:expr) => {
@@ -32,17 +29,7 @@ macro_rules! add_component {
 }
 
 pub fn main() -> Result<(), Error> {
-    let mut components = component::ComponentList::new();
-
-    add_component![
-        components,
-        components::Text {
-            color: Color::new(None, RGB(245, 45, 12)),
-            text: String::from("OwO? What's this?"),
-            fmt: &FMT
-        }
-    ];
-
+    let mut components = ComponentList::new();
     add_component![
         components,
         components::Battery::new(
@@ -55,13 +42,10 @@ pub fn main() -> Result<(), Error> {
             &FMT
         )
     ];
-
     components.update_all_sync()?;
-
     println![
         "{}",
         components.show_all_sync(" :: ", &FMT, Color::new(None, RGB(127, 127, 127)))?
     ];
-
     Ok(())
 }

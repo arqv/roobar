@@ -1,9 +1,4 @@
-use crate::{
-    component::Component,
-    color::Color,
-    formatter::Formatter,
-    Error, ErrorKind
-};
+use crate::{color::Color, component::Component, formatter::Formatter, Error, ErrorKind};
 
 use std::path::Path;
 
@@ -15,7 +10,7 @@ pub struct Battery {
     pub fmt: &'static dyn Formatter,
     batcap: f64,
     acconn: bool,
-    _res: Result<(), Error>
+    _res: Result<(), Error>,
 }
 
 impl Battery {
@@ -26,13 +21,17 @@ impl Battery {
         batpath: &'static Path,
         acpath: &'static Path,
         threshold: f64,
-        fmt: &'static dyn Formatter
+        fmt: &'static dyn Formatter,
     ) -> Battery {
         Battery {
             colors: (batt, lowbatt, ac),
-            batpath, acpath, threshold, fmt,
-            acconn: false, batcap: 0.0,
-            _res: Ok(())
+            batpath,
+            acpath,
+            threshold,
+            fmt,
+            acconn: false,
+            batcap: 0.0,
+            _res: Ok(()),
         }
     }
 }
@@ -52,7 +51,7 @@ impl Component for Battery {
         if bat.is_err() {
             let error = Err(Error {
                 kind: ErrorKind::FileError,
-                payload: Some("failed to open battery file")
+                payload: Some("failed to open battery file"),
             });
             self._res = error;
             return error;
@@ -61,27 +60,27 @@ impl Component for Battery {
         if bat.is_err() {
             let error = Err(Error {
                 kind: ErrorKind::Unknown,
-                payload: Some("failed to parse battery capacity as number")
+                payload: Some("failed to parse battery capacity as number"),
             });
             self._res = error;
             return error;
-        }                                                                                                                                                                                                                                                                                           
+        }
         let bat = bat.unwrap();
 
         let ac = std::fs::read_to_string(self.acpath.join("online"));
         if ac.is_err() {
             let error = Err(Error {
                 kind: ErrorKind::FileError,
-                payload: Some("failed to open AC adapter file")
+                payload: Some("failed to open AC adapter file"),
             });
             self._res = error;
-            return error;   
+            return error;
         }
         let ac = ac.unwrap().trim().parse::<u8>();
         if ac.is_err() {
             let error = Err(Error {
                 kind: ErrorKind::Unknown,
-                payload: Some("failed to parse AC status as number")
+                payload: Some("failed to parse AC status as number"),
             });
             self._res = error;
             return error;

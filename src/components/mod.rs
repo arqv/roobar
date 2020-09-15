@@ -1,4 +1,4 @@
-mod text;
 mod battery;
-pub use text::Text;
+mod text;
 pub use battery::Battery;
+pub use text::Text;

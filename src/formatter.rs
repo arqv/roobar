@@ -5,18 +5,18 @@ pub trait Formatter {
     fn colorize(&self, string: String, color: Color) -> String;
 }
 
-pub struct DumbFormatter {}
-impl Formatter for DumbFormatter {
+pub struct Terminal {}
+impl Formatter for Terminal {
     fn get_code(&self, _color: Color) -> String {
-        String::new()
+        unimplemented!();
     }
     fn colorize(&self, string: String, _color: Color) -> String {
         string
     }
 }
 
-pub struct DzenFormatter {}
-impl Formatter for DzenFormatter {
+pub struct Dzen {}
+impl Formatter for Dzen {
     fn get_code(&self, color: Color) -> String {
         format![
             "^fg({})^bg({})",

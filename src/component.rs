@@ -1,6 +1,6 @@
 use std::{
     slice::Iter,
-    sync::{Arc, RwLock}
+    sync::{Arc, RwLock},
 };
 
 use crate::color::Color;
@@ -31,23 +31,21 @@ impl ComponentList {
         let separator = fmt.colorize(String::from(separator), color);
         let mut guards = vec![];
         self.iter()
-            .map(|c| { 
-                let tmp = c.read();
-                if tmp.is_err() {
+            .map(|c| {
+                if let Ok(guard) = c.read() {
+                    guards.push(guard);
+                    Ok(())
+                } else {
                     Err(Error {
                         kind: ErrorKind::GuardError,
-                        payload: Some("failed to acquire read guard")
+                        payload: Some("failed to acquire read guard"),
                     })
-                } else {
-                    if let Ok(tmp) = tmp {
-                        guards.push(tmp);
-                    }
-                    Ok(())
                 }
             })
             .collect::<Result<(), Error>>()?;
 
-        Ok(guards.iter()
+        Ok(guards
+            .iter()
             .map(|c| c.show().unwrap_or_else(|| String::from("n/a")))
             .collect::<Vec<String>>()
             .join(&separator))
@@ -60,7 +58,7 @@ impl ComponentList {
                 if tmp.is_err() {
                     Err(Error {
                         kind: ErrorKind::GuardError,
-                        payload: Some("failed to acquire write guard")
+                        payload: Some("failed to acquire write guard"),
                     })
                 } else {
                     if let Ok(tmp) = tmp {
@@ -69,12 +67,9 @@ impl ComponentList {
                     Ok(())
                 }
             })
-
             .collect::<Result<(), Error>>()?;
 
-        guards.iter_mut()
-            .map(|c| c.update())
-            .collect()
+        guards.iter_mut().map(|c| c.update()).collect()
     }
     pub fn iter(&self) -> Iter<Arc<RwLock<dyn Component>>> {
         self.0.iter()
